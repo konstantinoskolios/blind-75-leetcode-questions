@@ -9,18 +9,18 @@ func main() {
 }
 
 func lengthOfLongestSubstring(s string) int {
-    charIndex := make(map[byte]int)
-    maxLength, start := 0, 0
+    charSet := make(map[byte]bool)
+    l := 0
+    res := 0
 
-    for end := 0; end < len(s); end++ {
-        char := s[end]
-        if index, found := charIndex[char]; found && index >= start {
-            start = index + 1
+    for r := 0; r < len(s); r++ {
+        for charSet[s[r]] {
+            delete(charSet, s[l])
+            l++
         }
-
-        charIndex[char] = end
-        maxLength = max(maxLength, end-start+1)
+        charSet[s[r]] = true
+        res = max(res, r-l+1)
     }
 
-    return maxLength
+    return res
 }
