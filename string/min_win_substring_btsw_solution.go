@@ -5,62 +5,80 @@ import (
 	"math"
 )
 
-func minWindow(s string, t string) string {
-	if len(s) == 0 || len(t) == 0 {
-		return ""
-	}
+type Solution struct{}
 
-	// Hash Map for storing the character frequency
-	requiredCharacters := make(map[byte]int)
+func (sol *Solution) minWindow(searchString string, t string) string {
+	n := len(searchString)
 
-	// Store the frequency of all the characters of string t
-	for i := 0; i < len(t); i++ {
-		requiredCharacters[t[i]]++
-	}
+	// It contains the min length seen so far
+	minWindowSize := math.MaxInt32
 
-	left, right := 0, 0
-	minLength := math.MaxInt32
-	minWindow := ""
+	// It contains the minimum length substring
+	var minWindow string
 
-	// Remaining characters to be found in the current window
-	remaining := len(t)
+	// The nested for loop helps us generate all the substrings
+	for left := 0; left < n; left++ {
+		for right := left; right < n; right++ {
 
-	for right < len(s) {
-		curChar := s[right]
-		if requiredCharacters[curChar] > 0 {
-			remaining--
-		}
+			// Generate the substring
+			windowSnippet := searchString[left : right+1]
 
-		requiredCharacters[curChar]--
+			// Check if the generated char contains all the characters of target
+			windowContainsAll := sol.containsAll(windowSnippet, t)
 
-		// Check if all characters are found in the current window
-		for remaining == 0 {
-			// Update the minimum window
-			if right-left+1 < minLength {
-				minLength = right - left + 1
-				minWindow = s[left : right+1]
+			// If it is a valid substring
+			// And the length is less than the minimum so far
+			// Update the answer
+			if windowContainsAll && len(windowSnippet) < minWindowSize {
+				minWindowSize = len(windowSnippet)
+				minWindow = windowSnippet
 			}
-
-			// Move the left pointer to find a smaller window
-			leftChar := s[left]
-			requiredCharacters[leftChar]++
-			if requiredCharacters[leftChar] > 0 {
-				remaining++
-			}
-
-			left++
 		}
-
-		// Move the right pointer to expand the window
-		right++
 	}
 
 	return minWindow
 }
 
+// Helper function to check if all the char of string are
+// Present in the string searchString
+func (sol *Solution) containsAll(searchString string, t string) bool {
+	requiredCharacters := make(map[byte]int)
+
+	for i := 0; i < len(t); i++ {
+		occurrences := 0
+		if val, exists := requiredCharacters[t[i]]; exists {
+			occurrences = val
+		}
+
+		requiredCharacters[t[i]] = occurrences + 1
+	}
+
+	for i := 0; i < len(searchString); i++ {
+		curr := searchString[i]
+
+		if occurrences, exists := requiredCharacters[curr]; exists {
+			// Calculate what the new occurrence count will be
+			newOccurrences := occurrences - 1
+
+			// If we have satisfied all of the characters for this character, remove the key
+			// from the hashtable.
+			// Otherwise, just update the mapping with 1 less occurrence to satisfy for
+			if newOccurrences == 0 {
+				delete(requiredCharacters, curr)
+			} else {
+				requiredCharacters[curr] = newOccurrences
+			}
+		}
+	}
+
+	// If we satisfied all characters, the required characters hashtable will be empty
+	return len(requiredCharacters) == 0
+}
+
 func main() {
+	sol := &Solution{}
 	searchString := "ADOBECODEBANC"
 	t := "ABC"
-	result := minWindow(searchString, t)
+	result := sol.minWindow(searchString, t)
 	fmt.Println(result)
 }
