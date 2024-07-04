@@ -73,12 +73,11 @@ func main() {
 	eligibleUserCounter(eligibleUsers, m2)
 
 	users := make([]int, 0, 10)
+	
 	for k, v := range eligibleUsers {
-
 		if v > 1 {
 			users = append(users, k)
 		}
-
 	}
 
 	fmt.Printf("Royal Users: %v\n", users)
@@ -106,7 +105,7 @@ func splitData(lines []string, m map[int][]string) {
 
 func eligibleUserCounter(eligibleUser map[int]int, m map[int][]string) {
 	for user, pages := range m {
-
+	
 		if len(arrayToSet(pages)) >= 2 {
 			eligibleUser[user]++
 		}
@@ -115,8 +114,10 @@ func eligibleUserCounter(eligibleUser map[int]int, m map[int][]string) {
 
 func arrayToSet(arr []string) map[string]struct{} {
     set := make(map[string]struct{})
+	
     for _, v := range arr {
         set[v] = struct{}{}
     }
+	
     return set
 }
